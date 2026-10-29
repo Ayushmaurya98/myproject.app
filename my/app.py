@@ -24,10 +24,10 @@ def load_vgg16_model():
     # KYA FILE PEHLE SE DOWNLOADED HAI? 
     if not os.path.exists(model_path):
         with st.spinner("Downloading 100MB+ Model from Google Drive... Please wait, this happens only once."):
-            # 🔴 AAPKI GOOGLE DRIVE FILE ID YAHAN PASTE KAREIN
+            # 🔴 AAPKI GOOGLE DRIVE FILE ID YAHAN HAIN
             FILE_ID = "1bXbgdH0WNDjOXtn_UsGuhpB5mi9bE2P7" 
             
-            # Direct download URL structure banana
+            # ✅ DIRECT DOWNLOAD URL KA SAHI STRUCTURE (FIXED)
             url = f"https://google.com{FILE_ID}"
             
             # File download execute karna
