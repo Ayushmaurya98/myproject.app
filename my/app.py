@@ -1,4 +1,80 @@
 
+import streamlit as st
+import numpy as np
+from PIL import Image
+import tensorflow as tf
+from tensorflow.keras.applications.vgg16 import preprocess_input
+import os
+import gdown
+
+# 1. Page Configuration
+st.set_page_config(
+    page_title="Cat vs Dog Classifier",
+    page_icon="🐱🐶",
+    layout="centered"
+)
+
+st.title("🐱🐶 Cat vs Dog Image Classifier")
+st.write("Upload an image to detect whether it is a Cat or Dog.")
+
+# 2. Download and Load Model
+@st.cache_resource
+def load_vgg16_model():
+
+    model_path = "model_vgg16.h5"
+    FILE_ID = "1bXbgdH0WNDjOXtn_UsGuhpB5mi9bE2P7"
+
+    if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
+
+        with st.spinner("Downloading model from Google Drive..."):
+
+            downloaded_file = gdown.download(
+                id=FILE_ID,
+                output=model_path,
+                quiet=False
+            )
+
+            if downloaded_file is None:
+                raise RuntimeError("Model download failed.")
+
+    if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
+        raise RuntimeError("Model file is missing or empty.")
+
+    model = tf.keras.models.load_model(model_path)
+
+    return model
+
+
+# Load Model
+try:
+    model = load_vgg16_model()
+    st.success("Model loaded successfully!")
+
+except Exception as e:
+    st.error(f"Model loading error: {e}")
+    st.stop()
+
+
+# 3. Image Preprocessing
+def preprocess_image(uploaded_file):
+
+    img = Image.open(uploaded_file)
+
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+
+    display_img = img.copy()
+
+    img = img.resize((224, 224))
+
+    img_array = tf.keras.preprocessing.image.img_to_array(img)
+
+    img_array = np.expand_dims(img_array, axis=0)
+
+    processed_img = preprocess_input(img_array)
+
+    return display_img, processed_img
+
 # 4. Streamlit UI
 uploaded_file = st.file_uploader(
     "Upload a Cat or Dog image",
