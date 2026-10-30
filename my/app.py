@@ -19,7 +19,7 @@ st.write("Upload an image to see if the model detects a Cat or a Dog.")
 # 2. Google Drive Se Model Download Aur Cache Karne Ka Logic
 @st.cache_resource
 def load_vgg16_model():
-    model_path = "model.h5"
+    model_path = "model_vgg16.h5"
     
     # KYA FILE PEHLE SE DOWNLOADED HAI? 
     if not os.path.exists(model_path):
