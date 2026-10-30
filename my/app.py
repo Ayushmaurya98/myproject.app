@@ -14,7 +14,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🐱🐶 Cat vs Dog VGG16 Classifier")
+st.title("🐱🐶 Cat vs Dog Image Classifier")
 st.write("Upload an image to see if the model detects a Cat or a Dog.")
 
 # 2. Download and Load Model
