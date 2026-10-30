@@ -14,20 +14,22 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🐱🐶 Cat vs Dog Image Classifier")
-st.write("Upload an image to detect whether it is a Cat or Dog.")
+st.title("🐱🐶 Cat vs Dog VGG16 Classifier")
+st.write("Upload an image to see if the model detects a Cat or a Dog.")
 
 # 2. Download and Load Model
 @st.cache_resource
 def load_vgg16_model():
 
     model_path = "model_vgg16.h5"
+
     FILE_ID = "1bXbgdH0WNDjOXtn_UsGuhpB5mi9bE2P7"
 
     if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
 
         with st.spinner("Downloading model from Google Drive..."):
 
+            # Correct Google Drive download
             downloaded_file = gdown.download(
                 id=FILE_ID,
                 output=model_path,
@@ -35,17 +37,20 @@ def load_vgg16_model():
             )
 
             if downloaded_file is None:
-                raise RuntimeError("Model download failed.")
+                raise RuntimeError(
+                    "Model download failed. Check Google Drive File ID and sharing permissions."
+                )
 
     if not os.path.exists(model_path) or os.path.getsize(model_path) == 0:
         raise RuntimeError("Model file is missing or empty.")
 
+    # Load model
     model = tf.keras.models.load_model(model_path)
 
     return model
 
 
-# Load Model
+# Load model
 try:
     model = load_vgg16_model()
     st.success("Model loaded successfully!")
@@ -75,59 +80,56 @@ def preprocess_image(uploaded_file):
 
     return display_img, processed_img
 
+
 # 4. Streamlit UI
 uploaded_file = st.file_uploader(
-    "Upload a Cat or Dog image",
+    "Choose an image file...",
     type=["jpg", "jpeg", "png"]
 )
 
 if uploaded_file is not None:
-    try:
-        display_img, processed_img = preprocess_image(uploaded_file)
 
-        col1, col2 = st.columns(2)
+    display_img, processed_img = preprocess_image(uploaded_file)
 
-        with col1:
-            st.subheader("Your Image")
-            st.image(display_img, use_container_width=True)
+    col1, col2 = st.columns(2)
 
-        with col2:
-            st.subheader("Prediction Result")
+    with col1:
+        st.subheader("Your Image")
+        st.image(display_img, use_container_width=True)
 
-            with st.spinner("Checking image..."):
-                predictions = model.predict(processed_img, verbose=0)
+    with col2:
+        st.subheader("Prediction Result")
 
-                CLASS_NAMES = ["Cat", "Dog"]
+        with st.spinner("Running prediction..."):
 
-                if predictions.shape[-1] == 1:
-                    prob = float(predictions[0][0])
+            predictions = model.predict(processed_img, verbose=0)
 
-                    if prob > 0.5:
-                        result_label = "Dog"
-                        confidence = prob
-                    else:
-                        result_label = "Cat"
-                        confidence = 1 - prob
+            CLASS_NAMES = ["Cat", "Dog"]
 
+            if predictions.shape[-1] == 1:
+
+                prob = float(predictions[0][0])
+
+                if prob > 0.5:
+                    result_label = "Dog"
+                    confidence = prob * 100
                 else:
-                    predicted_class_idx = int(np.argmax(predictions[0]))
-                    result_label = CLASS_NAMES[predicted_class_idx]
-                    confidence = float(predictions[0][predicted_class_idx])
+                    result_label = "Cat"
+                    confidence = (1 - prob) * 100
 
-                THRESHOLD = 0.80
+            else:
 
-                if confidence < THRESHOLD:
-                    st.error(
-                        "Invalid or uncertain image! "
-                        "Please upload only a Cat or Dog image."
-                    )
-                else:
-                    st.success(f"Detected: {result_label}")
+                predicted_class_idx = int(np.argmax(predictions[0]))
 
-                    st.metric(
-                        label="Confidence",
-                        value=f"{confidence * 100:.2f}%"
-                    )
+                result_label = CLASS_NAMES[predicted_class_idx]
 
-    except Exception as e:
-        st.error(f"Unable to process image: {e}")
+                confidence = float(
+                    predictions[0][predicted_class_idx]
+                ) * 100
+
+            st.success(f"Detected: **{result_label}**")
+
+            st.metric(
+                label="Confidence",
+                value=f"{confidence:.2f}%"
+            )
