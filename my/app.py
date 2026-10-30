@@ -14,7 +14,7 @@ st.set_page_config(
     layout="centered"
 )
 
-st.title("🐱🐶 Cat vs Dog VGG16 Classifier")
+st.title("🐱🐶 Cat vs Dog Image Classifier")
 st.write("Upload an image to see if the model detects a Cat or a Dog.")
 
 # 2. Download and Load Model
@@ -133,3 +133,23 @@ if uploaded_file is not None:
                 label="Confidence",
                 value=f"{confidence:.2f}%"
             )
+                THRESHOLD = 0.80
+
+                if confidence < THRESHOLD:
+
+                    st.error(
+                        "❌ Invalid or uncertain image! "
+                        "Please upload only a Cat or Dog image."
+                    )
+
+                else:
+
+                    st.success(f"Detected: {result_label} 🐱🐶")
+
+                    st.metric(
+                        label="Confidence",
+                        value=f"{confidence * 100:.2f}%"
+                    )
+
+    except Exception as e:
+        st.error(f"Unable to process image: {e}")
