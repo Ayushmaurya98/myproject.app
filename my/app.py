@@ -88,6 +88,7 @@ uploaded_file = st.file_uploader(
 )
 
 if uploaded_file is not None:
+    try:
 
     display_img, processed_img = preprocess_image(uploaded_file)
 
