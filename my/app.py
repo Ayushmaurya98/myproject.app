@@ -125,14 +125,8 @@ if uploaded_file is not None:
 
                 confidence = float(
                     predictions[0][predicted_class_idx]
-                ) * 100
+                ) 
 
-            st.success(f"Detected: **{result_label}**")
-
-            st.metric(
-                label="Confidence",
-                value=f"{confidence:.2f}%"
-            )
                 THRESHOLD = 0.80
 
                 if confidence < THRESHOLD:
